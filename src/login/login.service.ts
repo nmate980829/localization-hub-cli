@@ -1,4 +1,4 @@
-import { Injectable, Logger } from '@nestjs/common';
+import { Injectable, Logger, ValidationPipe } from '@nestjs/common';
 import { NestFactory } from '@nestjs/core';
 import chalk from 'chalk';
 import { plainToInstance } from 'class-transformer';
@@ -35,20 +35,35 @@ export class LoginService {
   }
 
   async getServer(server?: string): Promise<string> {
-    if (server && !isURL(server)) this.spinner.throw('Parameter is not a URL');
+    if (server && !isURL(server, { require_tld: false }))
+      this.spinner.throw('Parameter is not a URL');
 
-    if (!(await this.config.isConfig()) && !server)
+    const isC = await this.config.isConfig();
+    if (!isC && !server)
       this.spinner.throw('There were no server information provided.');
 
-    if (await this.config.isConfig())
-      return (await this.config.config()).server;
+    if (isC) return (await this.config.config()).uiURL;
     return server;
   }
 
   async login(server: string) {
     try {
-      const app = await NestFactory.create(AuthModule, {
+      const app = await NestFactory.create(
+        AuthModule /*, {
         logger: new Logger(),
+      }*/,
+      );
+      app.useGlobalPipes(
+        new ValidationPipe({
+          //disableErrorMessages: true,
+          whitelist: true,
+          transform: true,
+          forbidNonWhitelisted: true,
+          transformOptions: { enableImplicitConversion: true },
+        }),
+      );
+      app.enableCors({
+        origin: server.startsWith('http') ? server : `http://${server}`,
       });
       await app.listen(0);
       const service = app.get(AuthService);

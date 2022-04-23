@@ -9,7 +9,7 @@ export class PullCommand implements CommandRunner {
   ) {}
 
   async run(inputs: string[], options?: Record<string, any>) {
-    options = await this.inquirerService.prompt('pull', options);
+    //options = await this.inquirerService.prompt('pull', options);
     await this.service.command(inputs, options);
   }
 }

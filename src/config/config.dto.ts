@@ -8,8 +8,10 @@ import {
 } from 'class-validator';
 
 export class Config {
-  @IsUrl()
+  @IsUrl({ require_tld: false })
   server: string;
+  @IsUrl({ require_tld: false })
+  uiURL: string;
   @IsPositive()
   projectId: number;
   @MaxLength(128)

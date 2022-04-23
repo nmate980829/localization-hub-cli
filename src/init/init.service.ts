@@ -15,7 +15,7 @@ export class InitService {
     this.spinner.start('Creating configuration.');
     try {
       const { parser, name, description } = options;
-      const { server, token } = await this.config.login();
+      const { server, uiURL, token } = await this.config.login();
       const api = new ProjectsApi(
         new Configuration({ accessToken: token }),
         server,
@@ -23,6 +23,7 @@ export class InitService {
       const response = await api.projectsCreate({ name, description });
       const config = defaultConfig(
         server,
+        uiURL,
         (response.data.data as Project).id,
         parser,
       );

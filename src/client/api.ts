@@ -392,7 +392,7 @@ export interface CreateIdentifierDto {
      * @type {number}
      * @memberof CreateIdentifierDto
      */
-    'parentId'?: number;
+    'parentId'?: number | null;
     /**
      * 
      * @type {number}
@@ -506,6 +506,25 @@ export interface CreateRoleDto {
      * @memberof CreateRoleDto
      */
     'description': string;
+    /**
+     * 
+     * @type {Array<number>}
+     * @memberof CreateRoleDto
+     */
+    'rights': Array<number>;
+}
+/**
+ * 
+ * @export
+ * @interface CreateTokenDto
+ */
+export interface CreateTokenDto {
+    /**
+     * 
+     * @type {string}
+     * @memberof CreateTokenDto
+     */
+    'tokenDescription'?: string;
 }
 /**
  * 
@@ -841,38 +860,6 @@ export interface Language {
 /**
  * 
  * @export
- * @interface ListAccessDto
- */
-export interface ListAccessDto {
-    /**
-     * 
-     * @type {number}
-     * @memberof ListAccessDto
-     */
-    'projectId'?: number;
-    /**
-     * 
-     * @type {number}
-     * @memberof ListAccessDto
-     */
-    'userId'?: number;
-}
-/**
- * 
- * @export
- * @interface ListBranchDto
- */
-export interface ListBranchDto {
-    /**
-     * 
-     * @type {number}
-     * @memberof ListBranchDto
-     */
-    'projectId': number;
-}
-/**
- * 
- * @export
  * @interface ListCommentDto
  */
 export interface ListCommentDto {
@@ -886,44 +873,6 @@ export interface ListCommentDto {
 /**
  * 
  * @export
- * @interface ListIdentifierDto
- */
-export interface ListIdentifierDto {
-    /**
-     * 
-     * @type {number}
-     * @memberof ListIdentifierDto
-     */
-    'projectId'?: number;
-    /**
-     * 
-     * @type {number}
-     * @memberof ListIdentifierDto
-     */
-    'parentId'?: number;
-    /**
-     * 
-     * @type {Array<number>}
-     * @memberof ListIdentifierDto
-     */
-    'branches'?: Array<number>;
-}
-/**
- * 
- * @export
- * @interface ListLanguage
- */
-export interface ListLanguage {
-    /**
-     * 
-     * @type {number}
-     * @memberof ListLanguage
-     */
-    'projectId': number;
-}
-/**
- * 
- * @export
  * @interface ListReviewDto
  */
 export interface ListReviewDto {
@@ -933,43 +882,6 @@ export interface ListReviewDto {
      * @memberof ListReviewDto
      */
     'translationId': number;
-}
-/**
- * 
- * @export
- * @interface ListTranslationDto
- */
-export interface ListTranslationDto {
-    /**
-     * 
-     * @type {boolean}
-     * @memberof ListTranslationDto
-     */
-    'deleted'?: boolean;
-    /**
-     * 
-     * @type {number}
-     * @memberof ListTranslationDto
-     */
-    'identifierId'?: number;
-    /**
-     * 
-     * @type {number}
-     * @memberof ListTranslationDto
-     */
-    'languageId'?: number;
-    /**
-     * 
-     * @type {number}
-     * @memberof ListTranslationDto
-     */
-    'userId'?: number;
-    /**
-     * 
-     * @type {number}
-     * @memberof ListTranslationDto
-     */
-    'allVersions'?: number;
 }
 /**
  * 
@@ -991,10 +903,10 @@ export interface LoginDto {
     'password'?: string;
     /**
      * 
-     * @type {number}
+     * @type {string}
      * @memberof LoginDto
      */
-    'tokenDescription'?: number;
+    'tokenDescription'?: string;
 }
 /**
  * 
@@ -1094,25 +1006,25 @@ export interface RegisterDto {
      * @type {string}
      * @memberof RegisterDto
      */
-    'firstName'?: string;
+    'firstName': string;
     /**
      * 
      * @type {string}
      * @memberof RegisterDto
      */
-    'lastName'?: string;
+    'lastName': string;
     /**
      * 
      * @type {string}
      * @memberof RegisterDto
      */
-    'password'?: string;
+    'password': string;
     /**
      * 
-     * @type {number}
+     * @type {string}
      * @memberof RegisterDto
      */
-    'tokenDescription'?: number;
+    'tokenDescription'?: string;
 }
 /**
  * 
@@ -1535,25 +1447,6 @@ export interface TranslationEntity {
 /**
  * 
  * @export
- * @interface TreeIdentifierDto
- */
-export interface TreeIdentifierDto {
-    /**
-     * 
-     * @type {number}
-     * @memberof TreeIdentifierDto
-     */
-    'projectId': number;
-    /**
-     * 
-     * @type {Array<string>}
-     * @memberof TreeIdentifierDto
-     */
-    'branches': Array<string>;
-}
-/**
- * 
- * @export
  * @interface UpdateBundleDto
  */
 export interface UpdateBundleDto {
@@ -1688,6 +1581,12 @@ export interface UpdateRoleDto {
      * @memberof UpdateRoleDto
      */
     'description'?: string;
+    /**
+     * 
+     * @type {Array<number>}
+     * @memberof UpdateRoleDto
+     */
+    'rights'?: Array<number>;
 }
 /**
  * 
@@ -1842,13 +1741,12 @@ export const AccessApiAxiosParamCreator = function (configuration?: Configuratio
         },
         /**
          * 
-         * @param {ListAccessDto} listAccessDto 
+         * @param {number} [projectId] 
+         * @param {number} [userId] 
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        accessesFindAll: async (listAccessDto: ListAccessDto, options: AxiosRequestConfig = {}): Promise<RequestArgs> => {
-            // verify required parameter 'listAccessDto' is not null or undefined
-            assertParamExists('accessesFindAll', 'listAccessDto', listAccessDto)
+        accessesFindAll: async (projectId?: number, userId?: number, options: AxiosRequestConfig = {}): Promise<RequestArgs> => {
             const localVarPath = `/api/accesses`;
             // use dummy base URL string because the URL constructor only accepts absolute URLs.
             const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
@@ -1865,14 +1763,19 @@ export const AccessApiAxiosParamCreator = function (configuration?: Configuratio
             // http bearer authentication required
             await setBearerAuthToObject(localVarHeaderParameter, configuration)
 
+            if (projectId !== undefined) {
+                localVarQueryParameter['projectId'] = projectId;
+            }
+
+            if (userId !== undefined) {
+                localVarQueryParameter['userId'] = userId;
+            }
+
 
     
-            localVarHeaderParameter['Content-Type'] = 'application/json';
-
             setSearchParams(localVarUrlObj, localVarQueryParameter);
             let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
             localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
-            localVarRequestOptions.data = serializeDataIfNeeded(listAccessDto, localVarRequestOptions, configuration)
 
             return {
                 url: toPathString(localVarUrlObj),
@@ -2049,12 +1952,13 @@ export const AccessApiFp = function(configuration?: Configuration) {
         },
         /**
          * 
-         * @param {ListAccessDto} listAccessDto 
+         * @param {number} [projectId] 
+         * @param {number} [userId] 
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        async accessesFindAll(listAccessDto: ListAccessDto, options?: AxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<Response & object>> {
-            const localVarAxiosArgs = await localVarAxiosParamCreator.accessesFindAll(listAccessDto, options);
+        async accessesFindAll(projectId?: number, userId?: number, options?: AxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<Response & object>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.accessesFindAll(projectId, userId, options);
             return createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration);
         },
         /**
@@ -2118,12 +2022,13 @@ export const AccessApiFactory = function (configuration?: Configuration, basePat
         },
         /**
          * 
-         * @param {ListAccessDto} listAccessDto 
+         * @param {number} [projectId] 
+         * @param {number} [userId] 
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        accessesFindAll(listAccessDto: ListAccessDto, options?: any): AxiosPromise<Response & object> {
-            return localVarFp.accessesFindAll(listAccessDto, options).then((request) => request(axios, basePath));
+        accessesFindAll(projectId?: number, userId?: number, options?: any): AxiosPromise<Response & object> {
+            return localVarFp.accessesFindAll(projectId, userId, options).then((request) => request(axios, basePath));
         },
         /**
          * 
@@ -2184,13 +2089,14 @@ export class AccessApi extends BaseAPI {
 
     /**
      * 
-     * @param {ListAccessDto} listAccessDto 
+     * @param {number} [projectId] 
+     * @param {number} [userId] 
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
      * @memberof AccessApi
      */
-    public accessesFindAll(listAccessDto: ListAccessDto, options?: AxiosRequestConfig) {
-        return AccessApiFp(this.configuration).accessesFindAll(listAccessDto, options).then((request) => request(this.axios, this.basePath));
+    public accessesFindAll(projectId?: number, userId?: number, options?: AxiosRequestConfig) {
+        return AccessApiFp(this.configuration).accessesFindAll(projectId, userId, options).then((request) => request(this.axios, this.basePath));
     }
 
     /**
@@ -2848,13 +2754,13 @@ export const BranchesApiAxiosParamCreator = function (configuration?: Configurat
         },
         /**
          * 
-         * @param {ListBranchDto} listBranchDto 
+         * @param {number} projectId 
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        branchesFindAll: async (listBranchDto: ListBranchDto, options: AxiosRequestConfig = {}): Promise<RequestArgs> => {
-            // verify required parameter 'listBranchDto' is not null or undefined
-            assertParamExists('branchesFindAll', 'listBranchDto', listBranchDto)
+        branchesFindAll: async (projectId: number, options: AxiosRequestConfig = {}): Promise<RequestArgs> => {
+            // verify required parameter 'projectId' is not null or undefined
+            assertParamExists('branchesFindAll', 'projectId', projectId)
             const localVarPath = `/api/branches`;
             // use dummy base URL string because the URL constructor only accepts absolute URLs.
             const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
@@ -2871,14 +2777,15 @@ export const BranchesApiAxiosParamCreator = function (configuration?: Configurat
             // http bearer authentication required
             await setBearerAuthToObject(localVarHeaderParameter, configuration)
 
+            if (projectId !== undefined) {
+                localVarQueryParameter['projectId'] = projectId;
+            }
+
 
     
-            localVarHeaderParameter['Content-Type'] = 'application/json';
-
             setSearchParams(localVarUrlObj, localVarQueryParameter);
             let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
             localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
-            localVarRequestOptions.data = serializeDataIfNeeded(listBranchDto, localVarRequestOptions, configuration)
 
             return {
                 url: toPathString(localVarUrlObj),
@@ -3024,12 +2931,12 @@ export const BranchesApiFp = function(configuration?: Configuration) {
         },
         /**
          * 
-         * @param {ListBranchDto} listBranchDto 
+         * @param {number} projectId 
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        async branchesFindAll(listBranchDto: ListBranchDto, options?: AxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<Response & object>> {
-            const localVarAxiosArgs = await localVarAxiosParamCreator.branchesFindAll(listBranchDto, options);
+        async branchesFindAll(projectId: number, options?: AxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<Response & object>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.branchesFindAll(projectId, options);
             return createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration);
         },
         /**
@@ -3084,12 +2991,12 @@ export const BranchesApiFactory = function (configuration?: Configuration, baseP
         },
         /**
          * 
-         * @param {ListBranchDto} listBranchDto 
+         * @param {number} projectId 
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        branchesFindAll(listBranchDto: ListBranchDto, options?: any): AxiosPromise<Response & object> {
-            return localVarFp.branchesFindAll(listBranchDto, options).then((request) => request(axios, basePath));
+        branchesFindAll(projectId: number, options?: any): AxiosPromise<Response & object> {
+            return localVarFp.branchesFindAll(projectId, options).then((request) => request(axios, basePath));
         },
         /**
          * 
@@ -3142,13 +3049,13 @@ export class BranchesApi extends BaseAPI {
 
     /**
      * 
-     * @param {ListBranchDto} listBranchDto 
+     * @param {number} projectId 
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
      * @memberof BranchesApi
      */
-    public branchesFindAll(listBranchDto: ListBranchDto, options?: AxiosRequestConfig) {
-        return BranchesApiFp(this.configuration).branchesFindAll(listBranchDto, options).then((request) => request(this.axios, this.basePath));
+    public branchesFindAll(projectId: number, options?: AxiosRequestConfig) {
+        return BranchesApiFp(this.configuration).branchesFindAll(projectId, options).then((request) => request(this.axios, this.basePath));
     }
 
     /**
@@ -3988,13 +3895,13 @@ export const IdentifiersApiAxiosParamCreator = function (configuration?: Configu
         },
         /**
          * 
-         * @param {ListIdentifierDto} listIdentifierDto 
+         * @param {number} [projectId] 
+         * @param {number} [parentId] 
+         * @param {number} [branches] 
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        identifiersFindAll: async (listIdentifierDto: ListIdentifierDto, options: AxiosRequestConfig = {}): Promise<RequestArgs> => {
-            // verify required parameter 'listIdentifierDto' is not null or undefined
-            assertParamExists('identifiersFindAll', 'listIdentifierDto', listIdentifierDto)
+        identifiersFindAll: async (projectId?: number, parentId?: number, branches?: number, options: AxiosRequestConfig = {}): Promise<RequestArgs> => {
             const localVarPath = `/api/identifiers`;
             // use dummy base URL string because the URL constructor only accepts absolute URLs.
             const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
@@ -4011,14 +3918,23 @@ export const IdentifiersApiAxiosParamCreator = function (configuration?: Configu
             // http bearer authentication required
             await setBearerAuthToObject(localVarHeaderParameter, configuration)
 
+            if (projectId !== undefined) {
+                localVarQueryParameter['projectId'] = projectId;
+            }
+
+            if (parentId !== undefined) {
+                localVarQueryParameter['parentId'] = parentId;
+            }
+
+            if (branches !== undefined) {
+                localVarQueryParameter['branches'] = branches;
+            }
+
 
     
-            localVarHeaderParameter['Content-Type'] = 'application/json';
-
             setSearchParams(localVarUrlObj, localVarQueryParameter);
             let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
             localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
-            localVarRequestOptions.data = serializeDataIfNeeded(listIdentifierDto, localVarRequestOptions, configuration)
 
             return {
                 url: toPathString(localVarUrlObj),
@@ -4101,13 +4017,16 @@ export const IdentifiersApiAxiosParamCreator = function (configuration?: Configu
         },
         /**
          * 
-         * @param {TreeIdentifierDto} treeIdentifierDto 
+         * @param {number} projectId 
+         * @param {string} branches 
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        identifiersTree: async (treeIdentifierDto: TreeIdentifierDto, options: AxiosRequestConfig = {}): Promise<RequestArgs> => {
-            // verify required parameter 'treeIdentifierDto' is not null or undefined
-            assertParamExists('identifiersTree', 'treeIdentifierDto', treeIdentifierDto)
+        identifiersTree: async (projectId: number, branches: string, options: AxiosRequestConfig = {}): Promise<RequestArgs> => {
+            // verify required parameter 'projectId' is not null or undefined
+            assertParamExists('identifiersTree', 'projectId', projectId)
+            // verify required parameter 'branches' is not null or undefined
+            assertParamExists('identifiersTree', 'branches', branches)
             const localVarPath = `/api/identifiers/tree`;
             // use dummy base URL string because the URL constructor only accepts absolute URLs.
             const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
@@ -4124,14 +4043,19 @@ export const IdentifiersApiAxiosParamCreator = function (configuration?: Configu
             // http bearer authentication required
             await setBearerAuthToObject(localVarHeaderParameter, configuration)
 
+            if (projectId !== undefined) {
+                localVarQueryParameter['projectId'] = projectId;
+            }
+
+            if (branches !== undefined) {
+                localVarQueryParameter['branches'] = branches;
+            }
+
 
     
-            localVarHeaderParameter['Content-Type'] = 'application/json';
-
             setSearchParams(localVarUrlObj, localVarQueryParameter);
             let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
             localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
-            localVarRequestOptions.data = serializeDataIfNeeded(treeIdentifierDto, localVarRequestOptions, configuration)
 
             return {
                 url: toPathString(localVarUrlObj),
@@ -4203,12 +4127,14 @@ export const IdentifiersApiFp = function(configuration?: Configuration) {
         },
         /**
          * 
-         * @param {ListIdentifierDto} listIdentifierDto 
+         * @param {number} [projectId] 
+         * @param {number} [parentId] 
+         * @param {number} [branches] 
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        async identifiersFindAll(listIdentifierDto: ListIdentifierDto, options?: AxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<Response & object>> {
-            const localVarAxiosArgs = await localVarAxiosParamCreator.identifiersFindAll(listIdentifierDto, options);
+        async identifiersFindAll(projectId?: number, parentId?: number, branches?: number, options?: AxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<Response & object>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.identifiersFindAll(projectId, parentId, branches, options);
             return createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration);
         },
         /**
@@ -4233,12 +4159,13 @@ export const IdentifiersApiFp = function(configuration?: Configuration) {
         },
         /**
          * 
-         * @param {TreeIdentifierDto} treeIdentifierDto 
+         * @param {number} projectId 
+         * @param {string} branches 
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        async identifiersTree(treeIdentifierDto: TreeIdentifierDto, options?: AxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<Response & object>> {
-            const localVarAxiosArgs = await localVarAxiosParamCreator.identifiersTree(treeIdentifierDto, options);
+        async identifiersTree(projectId: number, branches: string, options?: AxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<Response & object>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.identifiersTree(projectId, branches, options);
             return createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration);
         },
         /**
@@ -4273,12 +4200,14 @@ export const IdentifiersApiFactory = function (configuration?: Configuration, ba
         },
         /**
          * 
-         * @param {ListIdentifierDto} listIdentifierDto 
+         * @param {number} [projectId] 
+         * @param {number} [parentId] 
+         * @param {number} [branches] 
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        identifiersFindAll(listIdentifierDto: ListIdentifierDto, options?: any): AxiosPromise<Response & object> {
-            return localVarFp.identifiersFindAll(listIdentifierDto, options).then((request) => request(axios, basePath));
+        identifiersFindAll(projectId?: number, parentId?: number, branches?: number, options?: any): AxiosPromise<Response & object> {
+            return localVarFp.identifiersFindAll(projectId, parentId, branches, options).then((request) => request(axios, basePath));
         },
         /**
          * 
@@ -4300,12 +4229,13 @@ export const IdentifiersApiFactory = function (configuration?: Configuration, ba
         },
         /**
          * 
-         * @param {TreeIdentifierDto} treeIdentifierDto 
+         * @param {number} projectId 
+         * @param {string} branches 
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        identifiersTree(treeIdentifierDto: TreeIdentifierDto, options?: any): AxiosPromise<Response & object> {
-            return localVarFp.identifiersTree(treeIdentifierDto, options).then((request) => request(axios, basePath));
+        identifiersTree(projectId: number, branches: string, options?: any): AxiosPromise<Response & object> {
+            return localVarFp.identifiersTree(projectId, branches, options).then((request) => request(axios, basePath));
         },
         /**
          * 
@@ -4340,13 +4270,15 @@ export class IdentifiersApi extends BaseAPI {
 
     /**
      * 
-     * @param {ListIdentifierDto} listIdentifierDto 
+     * @param {number} [projectId] 
+     * @param {number} [parentId] 
+     * @param {number} [branches] 
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
      * @memberof IdentifiersApi
      */
-    public identifiersFindAll(listIdentifierDto: ListIdentifierDto, options?: AxiosRequestConfig) {
-        return IdentifiersApiFp(this.configuration).identifiersFindAll(listIdentifierDto, options).then((request) => request(this.axios, this.basePath));
+    public identifiersFindAll(projectId?: number, parentId?: number, branches?: number, options?: AxiosRequestConfig) {
+        return IdentifiersApiFp(this.configuration).identifiersFindAll(projectId, parentId, branches, options).then((request) => request(this.axios, this.basePath));
     }
 
     /**
@@ -4373,13 +4305,14 @@ export class IdentifiersApi extends BaseAPI {
 
     /**
      * 
-     * @param {TreeIdentifierDto} treeIdentifierDto 
+     * @param {number} projectId 
+     * @param {string} branches 
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
      * @memberof IdentifiersApi
      */
-    public identifiersTree(treeIdentifierDto: TreeIdentifierDto, options?: AxiosRequestConfig) {
-        return IdentifiersApiFp(this.configuration).identifiersTree(treeIdentifierDto, options).then((request) => request(this.axios, this.basePath));
+    public identifiersTree(projectId: number, branches: string, options?: AxiosRequestConfig) {
+        return IdentifiersApiFp(this.configuration).identifiersTree(projectId, branches, options).then((request) => request(this.axios, this.basePath));
     }
 
     /**
@@ -4811,13 +4744,13 @@ export const LanguagesApiAxiosParamCreator = function (configuration?: Configura
         },
         /**
          * 
-         * @param {ListLanguage} listLanguage 
+         * @param {number} projectId 
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        languagesFindAll: async (listLanguage: ListLanguage, options: AxiosRequestConfig = {}): Promise<RequestArgs> => {
-            // verify required parameter 'listLanguage' is not null or undefined
-            assertParamExists('languagesFindAll', 'listLanguage', listLanguage)
+        languagesFindAll: async (projectId: number, options: AxiosRequestConfig = {}): Promise<RequestArgs> => {
+            // verify required parameter 'projectId' is not null or undefined
+            assertParamExists('languagesFindAll', 'projectId', projectId)
             const localVarPath = `/api/languages`;
             // use dummy base URL string because the URL constructor only accepts absolute URLs.
             const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
@@ -4834,14 +4767,15 @@ export const LanguagesApiAxiosParamCreator = function (configuration?: Configura
             // http bearer authentication required
             await setBearerAuthToObject(localVarHeaderParameter, configuration)
 
+            if (projectId !== undefined) {
+                localVarQueryParameter['projectId'] = projectId;
+            }
+
 
     
-            localVarHeaderParameter['Content-Type'] = 'application/json';
-
             setSearchParams(localVarUrlObj, localVarQueryParameter);
             let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
             localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
-            localVarRequestOptions.data = serializeDataIfNeeded(listLanguage, localVarRequestOptions, configuration)
 
             return {
                 url: toPathString(localVarUrlObj),
@@ -4987,12 +4921,12 @@ export const LanguagesApiFp = function(configuration?: Configuration) {
         },
         /**
          * 
-         * @param {ListLanguage} listLanguage 
+         * @param {number} projectId 
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        async languagesFindAll(listLanguage: ListLanguage, options?: AxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<Response & object>> {
-            const localVarAxiosArgs = await localVarAxiosParamCreator.languagesFindAll(listLanguage, options);
+        async languagesFindAll(projectId: number, options?: AxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<Response & object>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.languagesFindAll(projectId, options);
             return createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration);
         },
         /**
@@ -5047,12 +4981,12 @@ export const LanguagesApiFactory = function (configuration?: Configuration, base
         },
         /**
          * 
-         * @param {ListLanguage} listLanguage 
+         * @param {number} projectId 
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        languagesFindAll(listLanguage: ListLanguage, options?: any): AxiosPromise<Response & object> {
-            return localVarFp.languagesFindAll(listLanguage, options).then((request) => request(axios, basePath));
+        languagesFindAll(projectId: number, options?: any): AxiosPromise<Response & object> {
+            return localVarFp.languagesFindAll(projectId, options).then((request) => request(axios, basePath));
         },
         /**
          * 
@@ -5105,13 +5039,13 @@ export class LanguagesApi extends BaseAPI {
 
     /**
      * 
-     * @param {ListLanguage} listLanguage 
+     * @param {number} projectId 
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
      * @memberof LanguagesApi
      */
-    public languagesFindAll(listLanguage: ListLanguage, options?: AxiosRequestConfig) {
-        return LanguagesApiFp(this.configuration).languagesFindAll(listLanguage, options).then((request) => request(this.axios, this.basePath));
+    public languagesFindAll(projectId: number, options?: AxiosRequestConfig) {
+        return LanguagesApiFp(this.configuration).languagesFindAll(projectId, options).then((request) => request(this.axios, this.basePath));
     }
 
     /**
@@ -5921,10 +5855,11 @@ export const RightsApiAxiosParamCreator = function (configuration?: Configuratio
     return {
         /**
          * 
+         * @param {number} [roleId] 
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        rightsFindAll: async (options: AxiosRequestConfig = {}): Promise<RequestArgs> => {
+        rightsFindAll: async (roleId?: number, options: AxiosRequestConfig = {}): Promise<RequestArgs> => {
             const localVarPath = `/api/rights`;
             // use dummy base URL string because the URL constructor only accepts absolute URLs.
             const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
@@ -5940,6 +5875,10 @@ export const RightsApiAxiosParamCreator = function (configuration?: Configuratio
             // authentication BearerAuth required
             // http bearer authentication required
             await setBearerAuthToObject(localVarHeaderParameter, configuration)
+
+            if (roleId !== undefined) {
+                localVarQueryParameter['roleId'] = roleId;
+            }
 
 
     
@@ -6001,11 +5940,12 @@ export const RightsApiFp = function(configuration?: Configuration) {
     return {
         /**
          * 
+         * @param {number} [roleId] 
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        async rightsFindAll(options?: AxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<Response & object>> {
-            const localVarAxiosArgs = await localVarAxiosParamCreator.rightsFindAll(options);
+        async rightsFindAll(roleId?: number, options?: AxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<Response & object>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.rightsFindAll(roleId, options);
             return createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration);
         },
         /**
@@ -6030,11 +5970,12 @@ export const RightsApiFactory = function (configuration?: Configuration, basePat
     return {
         /**
          * 
+         * @param {number} [roleId] 
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        rightsFindAll(options?: any): AxiosPromise<Response & object> {
-            return localVarFp.rightsFindAll(options).then((request) => request(axios, basePath));
+        rightsFindAll(roleId?: number, options?: any): AxiosPromise<Response & object> {
+            return localVarFp.rightsFindAll(roleId, options).then((request) => request(axios, basePath));
         },
         /**
          * 
@@ -6057,12 +5998,13 @@ export const RightsApiFactory = function (configuration?: Configuration, basePat
 export class RightsApi extends BaseAPI {
     /**
      * 
+     * @param {number} [roleId] 
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
      * @memberof RightsApi
      */
-    public rightsFindAll(options?: AxiosRequestConfig) {
-        return RightsApiFp(this.configuration).rightsFindAll(options).then((request) => request(this.axios, this.basePath));
+    public rightsFindAll(roleId?: number, options?: AxiosRequestConfig) {
+        return RightsApiFp(this.configuration).rightsFindAll(roleId, options).then((request) => request(this.axios, this.basePath));
     }
 
     /**
@@ -6463,6 +6405,45 @@ export const TokensApiAxiosParamCreator = function (configuration?: Configuratio
     return {
         /**
          * 
+         * @param {CreateTokenDto} createTokenDto 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        tokensCreate: async (createTokenDto: CreateTokenDto, options: AxiosRequestConfig = {}): Promise<RequestArgs> => {
+            // verify required parameter 'createTokenDto' is not null or undefined
+            assertParamExists('tokensCreate', 'createTokenDto', createTokenDto)
+            const localVarPath = `/api/tokens`;
+            // use dummy base URL string because the URL constructor only accepts absolute URLs.
+            const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
+            let baseOptions;
+            if (configuration) {
+                baseOptions = configuration.baseOptions;
+            }
+
+            const localVarRequestOptions = { method: 'POST', ...baseOptions, ...options};
+            const localVarHeaderParameter = {} as any;
+            const localVarQueryParameter = {} as any;
+
+            // authentication BearerAuth required
+            // http bearer authentication required
+            await setBearerAuthToObject(localVarHeaderParameter, configuration)
+
+
+    
+            localVarHeaderParameter['Content-Type'] = 'application/json';
+
+            setSearchParams(localVarUrlObj, localVarQueryParameter);
+            let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
+            localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
+            localVarRequestOptions.data = serializeDataIfNeeded(createTokenDto, localVarRequestOptions, configuration)
+
+            return {
+                url: toPathString(localVarUrlObj),
+                options: localVarRequestOptions,
+            };
+        },
+        /**
+         * 
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
@@ -6619,6 +6600,16 @@ export const TokensApiFp = function(configuration?: Configuration) {
     return {
         /**
          * 
+         * @param {CreateTokenDto} createTokenDto 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        async tokensCreate(createTokenDto: CreateTokenDto, options?: AxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<Response & object>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.tokensCreate(createTokenDto, options);
+            return createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration);
+        },
+        /**
+         * 
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
@@ -6668,6 +6659,15 @@ export const TokensApiFactory = function (configuration?: Configuration, basePat
     return {
         /**
          * 
+         * @param {CreateTokenDto} createTokenDto 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        tokensCreate(createTokenDto: CreateTokenDto, options?: any): AxiosPromise<Response & object> {
+            return localVarFp.tokensCreate(createTokenDto, options).then((request) => request(axios, basePath));
+        },
+        /**
+         * 
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
@@ -6711,6 +6711,17 @@ export const TokensApiFactory = function (configuration?: Configuration, basePat
  * @extends {BaseAPI}
  */
 export class TokensApi extends BaseAPI {
+    /**
+     * 
+     * @param {CreateTokenDto} createTokenDto 
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     * @memberof TokensApi
+     */
+    public tokensCreate(createTokenDto: CreateTokenDto, options?: AxiosRequestConfig) {
+        return TokensApiFp(this.configuration).tokensCreate(createTokenDto, options).then((request) => request(this.axios, this.basePath));
+    }
+
     /**
      * 
      * @param {*} [options] Override http request option.
@@ -6803,13 +6814,15 @@ export const TranslationsApiAxiosParamCreator = function (configuration?: Config
         },
         /**
          * 
-         * @param {ListTranslationDto} listTranslationDto 
+         * @param {boolean} [deleted] 
+         * @param {number} [identifierId] 
+         * @param {number} [languageId] 
+         * @param {number} [userId] 
+         * @param {number} [allVersions] 
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        translationsFindAll: async (listTranslationDto: ListTranslationDto, options: AxiosRequestConfig = {}): Promise<RequestArgs> => {
-            // verify required parameter 'listTranslationDto' is not null or undefined
-            assertParamExists('translationsFindAll', 'listTranslationDto', listTranslationDto)
+        translationsFindAll: async (deleted?: boolean, identifierId?: number, languageId?: number, userId?: number, allVersions?: number, options: AxiosRequestConfig = {}): Promise<RequestArgs> => {
             const localVarPath = `/api/translations`;
             // use dummy base URL string because the URL constructor only accepts absolute URLs.
             const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
@@ -6826,14 +6839,31 @@ export const TranslationsApiAxiosParamCreator = function (configuration?: Config
             // http bearer authentication required
             await setBearerAuthToObject(localVarHeaderParameter, configuration)
 
+            if (deleted !== undefined) {
+                localVarQueryParameter['deleted'] = deleted;
+            }
+
+            if (identifierId !== undefined) {
+                localVarQueryParameter['identifierId'] = identifierId;
+            }
+
+            if (languageId !== undefined) {
+                localVarQueryParameter['languageId'] = languageId;
+            }
+
+            if (userId !== undefined) {
+                localVarQueryParameter['userId'] = userId;
+            }
+
+            if (allVersions !== undefined) {
+                localVarQueryParameter['allVersions'] = allVersions;
+            }
+
 
     
-            localVarHeaderParameter['Content-Type'] = 'application/json';
-
             setSearchParams(localVarUrlObj, localVarQueryParameter);
             let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
             localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
-            localVarRequestOptions.data = serializeDataIfNeeded(listTranslationDto, localVarRequestOptions, configuration)
 
             return {
                 url: toPathString(localVarUrlObj),
@@ -6916,13 +6946,16 @@ export const TranslationsApiAxiosParamCreator = function (configuration?: Config
         },
         /**
          * 
-         * @param {TreeIdentifierDto} treeIdentifierDto 
+         * @param {number} projectId 
+         * @param {string} branches 
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        translationsTree: async (treeIdentifierDto: TreeIdentifierDto, options: AxiosRequestConfig = {}): Promise<RequestArgs> => {
-            // verify required parameter 'treeIdentifierDto' is not null or undefined
-            assertParamExists('translationsTree', 'treeIdentifierDto', treeIdentifierDto)
+        translationsTree: async (projectId: number, branches: string, options: AxiosRequestConfig = {}): Promise<RequestArgs> => {
+            // verify required parameter 'projectId' is not null or undefined
+            assertParamExists('translationsTree', 'projectId', projectId)
+            // verify required parameter 'branches' is not null or undefined
+            assertParamExists('translationsTree', 'branches', branches)
             const localVarPath = `/api/translations/tree`;
             // use dummy base URL string because the URL constructor only accepts absolute URLs.
             const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
@@ -6939,14 +6972,19 @@ export const TranslationsApiAxiosParamCreator = function (configuration?: Config
             // http bearer authentication required
             await setBearerAuthToObject(localVarHeaderParameter, configuration)
 
+            if (projectId !== undefined) {
+                localVarQueryParameter['projectId'] = projectId;
+            }
+
+            if (branches !== undefined) {
+                localVarQueryParameter['branches'] = branches;
+            }
+
 
     
-            localVarHeaderParameter['Content-Type'] = 'application/json';
-
             setSearchParams(localVarUrlObj, localVarQueryParameter);
             let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
             localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
-            localVarRequestOptions.data = serializeDataIfNeeded(treeIdentifierDto, localVarRequestOptions, configuration)
 
             return {
                 url: toPathString(localVarUrlObj),
@@ -7018,12 +7056,16 @@ export const TranslationsApiFp = function(configuration?: Configuration) {
         },
         /**
          * 
-         * @param {ListTranslationDto} listTranslationDto 
+         * @param {boolean} [deleted] 
+         * @param {number} [identifierId] 
+         * @param {number} [languageId] 
+         * @param {number} [userId] 
+         * @param {number} [allVersions] 
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        async translationsFindAll(listTranslationDto: ListTranslationDto, options?: AxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<Response & object>> {
-            const localVarAxiosArgs = await localVarAxiosParamCreator.translationsFindAll(listTranslationDto, options);
+        async translationsFindAll(deleted?: boolean, identifierId?: number, languageId?: number, userId?: number, allVersions?: number, options?: AxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<Response & object>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.translationsFindAll(deleted, identifierId, languageId, userId, allVersions, options);
             return createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration);
         },
         /**
@@ -7048,12 +7090,13 @@ export const TranslationsApiFp = function(configuration?: Configuration) {
         },
         /**
          * 
-         * @param {TreeIdentifierDto} treeIdentifierDto 
+         * @param {number} projectId 
+         * @param {string} branches 
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        async translationsTree(treeIdentifierDto: TreeIdentifierDto, options?: AxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<Response & object>> {
-            const localVarAxiosArgs = await localVarAxiosParamCreator.translationsTree(treeIdentifierDto, options);
+        async translationsTree(projectId: number, branches: string, options?: AxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<Response & object>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.translationsTree(projectId, branches, options);
             return createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration);
         },
         /**
@@ -7088,12 +7131,16 @@ export const TranslationsApiFactory = function (configuration?: Configuration, b
         },
         /**
          * 
-         * @param {ListTranslationDto} listTranslationDto 
+         * @param {boolean} [deleted] 
+         * @param {number} [identifierId] 
+         * @param {number} [languageId] 
+         * @param {number} [userId] 
+         * @param {number} [allVersions] 
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        translationsFindAll(listTranslationDto: ListTranslationDto, options?: any): AxiosPromise<Response & object> {
-            return localVarFp.translationsFindAll(listTranslationDto, options).then((request) => request(axios, basePath));
+        translationsFindAll(deleted?: boolean, identifierId?: number, languageId?: number, userId?: number, allVersions?: number, options?: any): AxiosPromise<Response & object> {
+            return localVarFp.translationsFindAll(deleted, identifierId, languageId, userId, allVersions, options).then((request) => request(axios, basePath));
         },
         /**
          * 
@@ -7115,12 +7162,13 @@ export const TranslationsApiFactory = function (configuration?: Configuration, b
         },
         /**
          * 
-         * @param {TreeIdentifierDto} treeIdentifierDto 
+         * @param {number} projectId 
+         * @param {string} branches 
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        translationsTree(treeIdentifierDto: TreeIdentifierDto, options?: any): AxiosPromise<Response & object> {
-            return localVarFp.translationsTree(treeIdentifierDto, options).then((request) => request(axios, basePath));
+        translationsTree(projectId: number, branches: string, options?: any): AxiosPromise<Response & object> {
+            return localVarFp.translationsTree(projectId, branches, options).then((request) => request(axios, basePath));
         },
         /**
          * 
@@ -7155,13 +7203,17 @@ export class TranslationsApi extends BaseAPI {
 
     /**
      * 
-     * @param {ListTranslationDto} listTranslationDto 
+     * @param {boolean} [deleted] 
+     * @param {number} [identifierId] 
+     * @param {number} [languageId] 
+     * @param {number} [userId] 
+     * @param {number} [allVersions] 
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
      * @memberof TranslationsApi
      */
-    public translationsFindAll(listTranslationDto: ListTranslationDto, options?: AxiosRequestConfig) {
-        return TranslationsApiFp(this.configuration).translationsFindAll(listTranslationDto, options).then((request) => request(this.axios, this.basePath));
+    public translationsFindAll(deleted?: boolean, identifierId?: number, languageId?: number, userId?: number, allVersions?: number, options?: AxiosRequestConfig) {
+        return TranslationsApiFp(this.configuration).translationsFindAll(deleted, identifierId, languageId, userId, allVersions, options).then((request) => request(this.axios, this.basePath));
     }
 
     /**
@@ -7188,13 +7240,14 @@ export class TranslationsApi extends BaseAPI {
 
     /**
      * 
-     * @param {TreeIdentifierDto} treeIdentifierDto 
+     * @param {number} projectId 
+     * @param {string} branches 
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
      * @memberof TranslationsApi
      */
-    public translationsTree(treeIdentifierDto: TreeIdentifierDto, options?: AxiosRequestConfig) {
-        return TranslationsApiFp(this.configuration).translationsTree(treeIdentifierDto, options).then((request) => request(this.axios, this.basePath));
+    public translationsTree(projectId: number, branches: string, options?: AxiosRequestConfig) {
+        return TranslationsApiFp(this.configuration).translationsTree(projectId, branches, options).then((request) => request(this.axios, this.basePath));
     }
 
     /**
@@ -7404,6 +7457,43 @@ export const UsersApiAxiosParamCreator = function (configuration?: Configuration
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
+        usersLogout: async (id: number, options: AxiosRequestConfig = {}): Promise<RequestArgs> => {
+            // verify required parameter 'id' is not null or undefined
+            assertParamExists('usersLogout', 'id', id)
+            const localVarPath = `/api/users/{id}/logout`
+                .replace(`{${"id"}}`, encodeURIComponent(String(id)));
+            // use dummy base URL string because the URL constructor only accepts absolute URLs.
+            const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
+            let baseOptions;
+            if (configuration) {
+                baseOptions = configuration.baseOptions;
+            }
+
+            const localVarRequestOptions = { method: 'PATCH', ...baseOptions, ...options};
+            const localVarHeaderParameter = {} as any;
+            const localVarQueryParameter = {} as any;
+
+            // authentication BearerAuth required
+            // http bearer authentication required
+            await setBearerAuthToObject(localVarHeaderParameter, configuration)
+
+
+    
+            setSearchParams(localVarUrlObj, localVarQueryParameter);
+            let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
+            localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
+
+            return {
+                url: toPathString(localVarUrlObj),
+                options: localVarRequestOptions,
+            };
+        },
+        /**
+         * 
+         * @param {number} id 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
         usersRemove: async (id: number, options: AxiosRequestConfig = {}): Promise<RequestArgs> => {
             // verify required parameter 'id' is not null or undefined
             assertParamExists('usersRemove', 'id', id)
@@ -7417,6 +7507,43 @@ export const UsersApiAxiosParamCreator = function (configuration?: Configuration
             }
 
             const localVarRequestOptions = { method: 'DELETE', ...baseOptions, ...options};
+            const localVarHeaderParameter = {} as any;
+            const localVarQueryParameter = {} as any;
+
+            // authentication BearerAuth required
+            // http bearer authentication required
+            await setBearerAuthToObject(localVarHeaderParameter, configuration)
+
+
+    
+            setSearchParams(localVarUrlObj, localVarQueryParameter);
+            let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
+            localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
+
+            return {
+                url: toPathString(localVarUrlObj),
+                options: localVarRequestOptions,
+            };
+        },
+        /**
+         * 
+         * @param {number} id 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        usersReset: async (id: number, options: AxiosRequestConfig = {}): Promise<RequestArgs> => {
+            // verify required parameter 'id' is not null or undefined
+            assertParamExists('usersReset', 'id', id)
+            const localVarPath = `/api/users/{id}/reset-password`
+                .replace(`{${"id"}}`, encodeURIComponent(String(id)));
+            // use dummy base URL string because the URL constructor only accepts absolute URLs.
+            const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
+            let baseOptions;
+            if (configuration) {
+                baseOptions = configuration.baseOptions;
+            }
+
+            const localVarRequestOptions = { method: 'PATCH', ...baseOptions, ...options};
             const localVarHeaderParameter = {} as any;
             const localVarQueryParameter = {} as any;
 
@@ -7581,8 +7708,28 @@ export const UsersApiFp = function(configuration?: Configuration) {
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
+        async usersLogout(id: number, options?: AxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<Response & object>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.usersLogout(id, options);
+            return createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration);
+        },
+        /**
+         * 
+         * @param {number} id 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
         async usersRemove(id: number, options?: AxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<Response & object>> {
             const localVarAxiosArgs = await localVarAxiosParamCreator.usersRemove(id, options);
+            return createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration);
+        },
+        /**
+         * 
+         * @param {number} id 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        async usersReset(id: number, options?: AxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<Response & object>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.usersReset(id, options);
             return createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration);
         },
         /**
@@ -7665,8 +7812,26 @@ export const UsersApiFactory = function (configuration?: Configuration, basePath
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
+        usersLogout(id: number, options?: any): AxiosPromise<Response & object> {
+            return localVarFp.usersLogout(id, options).then((request) => request(axios, basePath));
+        },
+        /**
+         * 
+         * @param {number} id 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
         usersRemove(id: number, options?: any): AxiosPromise<Response & object> {
             return localVarFp.usersRemove(id, options).then((request) => request(axios, basePath));
+        },
+        /**
+         * 
+         * @param {number} id 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        usersReset(id: number, options?: any): AxiosPromise<Response & object> {
+            return localVarFp.usersReset(id, options).then((request) => request(axios, basePath));
         },
         /**
          * 
@@ -7757,8 +7922,30 @@ export class UsersApi extends BaseAPI {
      * @throws {RequiredError}
      * @memberof UsersApi
      */
+    public usersLogout(id: number, options?: AxiosRequestConfig) {
+        return UsersApiFp(this.configuration).usersLogout(id, options).then((request) => request(this.axios, this.basePath));
+    }
+
+    /**
+     * 
+     * @param {number} id 
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     * @memberof UsersApi
+     */
     public usersRemove(id: number, options?: AxiosRequestConfig) {
         return UsersApiFp(this.configuration).usersRemove(id, options).then((request) => request(this.axios, this.basePath));
+    }
+
+    /**
+     * 
+     * @param {number} id 
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     * @memberof UsersApi
+     */
+    public usersReset(id: number, options?: AxiosRequestConfig) {
+        return UsersApiFp(this.configuration).usersReset(id, options).then((request) => request(this.axios, this.basePath));
     }
 
     /**

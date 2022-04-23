@@ -29,6 +29,7 @@
     "lohub": "dist/main"
   },
   "dependencies": {
+    "@iarna/toml": "^2.2.5",
     "@nestjs/common": "^8.0.0",
     "@nestjs/core": "^8.0.0",
     "@nestjs/mapped-types": "*",

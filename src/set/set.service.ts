@@ -5,11 +5,14 @@ import { OraService } from 'src/ora/ora.service';
 
 const fields: Record<keyof Config, string[]> = {
   server: [],
+  uiURL: [],
   projectId: [],
   parser: [],
   head: [],
   branches: ['add', 'remove', 'clear'],
   output: [],
+  defaultLanguage: [],
+  languages: [],
 };
 
 @Injectable()

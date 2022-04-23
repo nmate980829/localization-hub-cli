@@ -16,7 +16,6 @@ export class LogoutCommand implements CommandRunner {
 
   async run(inputs: string[], options?: Record<string, any>) {
     options = await this.inquirerService.prompt('logout', options);
-    console.log({ inputs, options });
     if (options?.confirm === true) await this.config.logout();
     console.log(chalk.green('Good bye!'));
   }

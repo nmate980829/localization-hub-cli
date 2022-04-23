@@ -1,4 +1,5 @@
-import { isURL } from 'class-validator';
+import { Logger } from '@nestjs/common';
+import { isString, isURL } from 'class-validator';
 import { QuestionSet, Question, ValidateFor, WhenFor } from 'nest-commander';
 import { ConfigService } from 'src/config/config.service';
 
@@ -17,7 +18,7 @@ export class LoginQuestions {
     name: 'server',
   })
   validate(str: string): boolean {
-    return isURL(str);
+    return isURL(str, { require_tld: false });
   }
   @WhenFor({
     name: 'server',
@@ -29,7 +30,7 @@ export class LoginQuestions {
     return (
       !(await this.config.isLoggedIn()) &&
       !(await this.config.isConfig()) &&
-      (!options?.server || !isURL(options.server))
+      (!options?.server || !isURL(options.server, { require_tld: false }))
     );
   }
 }

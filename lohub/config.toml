@@ -1,0 +1,8 @@
+server = "http://localhost:3000"
+uiURL = "http://localhost:3001"
+projectId = 15
+parser = "json"
+output = "src/localization"
+languages = [ "en", "hu" ]
+head = "main"
+branches = [ "main" ]

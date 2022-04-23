@@ -8,4 +8,6 @@ export class TokenDto {
   refresh: string;
   @IsUrl({ require_tld: false })
   server: string;
+  @IsUrl({ require_tld: false })
+  uiURL: string;
 }

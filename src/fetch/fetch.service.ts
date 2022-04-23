@@ -28,10 +28,10 @@ export class FetchService {
       new Configuration({ accessToken: login.token }),
       configFile.server,
     );
-    const tree = await api.translationsTree({
-      branches: configFile.branches,
-      projectId: configFile.projectId,
-    });
+    const tree = await api.translationsTree(
+      configFile.projectId,
+      configFile.branches.join(','),
+    );
     try {
       await this.config.initDirectory();
       await writeFile(

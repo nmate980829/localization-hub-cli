@@ -1,5 +1,5 @@
 import { Injectable } from '@nestjs/common';
-import { plainToInstance } from 'class-transformer';
+import { instanceToPlain, plainToInstance } from 'class-transformer';
 import { validateOrReject } from 'class-validator';
 import findUp from 'find-up';
 import { constants } from 'fs';
@@ -7,7 +7,7 @@ import { access, mkdir, readFile, unlink, writeFile } from 'fs/promises';
 import path from 'path';
 import { TokenDto } from 'src/auth/dto/token.dto';
 import { forward } from 'src/utils/forward';
-import { parse } from 'toml';
+import { parse, stringify } from '@iarna/toml';
 import { Config } from './config.dto';
 
 @Injectable()
@@ -50,27 +50,30 @@ export class ConfigService {
       await validateOrReject(config, {
         whitelist: true,
         forbidNonWhitelisted: true,
-      }).catch(() => {
+      }).catch((error) => {
+        console.log(error);
         throw new Error('lohub:Invalid config.');
       });
       return config;
     } catch (error) {
+      console.log(error);
       forward(error, 'Error while reading config file.');
     }
   }
 
   async saveConfig(config: Config) {
     try {
-      await validateOrReject(config, {
+      /* await validateOrReject(config, {
         whitelist: true,
         forbidNonWhitelisted: true,
-      });
+      }); */
       await this.initDirectory();
       await writeFile(
         path.join(await this.getDirectory(), 'config.toml'),
-        JSON.stringify(config),
+        stringify(instanceToPlain(config)),
       );
     } catch (error) {
+      console.log(error);
       forward(error, 'Error while saving config file.');
     }
   }
